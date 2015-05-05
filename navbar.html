@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+<title>Auctioneer</title>
+<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+<style type='text/css'>
+body {
+background-color: #CCC;
+}
+</style>
+</head>
+<body>
+  <div class='navbar navbar-inverse'>
+  <div class='navbar-inner nav-collapse' style='height: auto;'>
+    <ul class="nav">
+      <li><a href="auctioneer.php">Home</a></li>
+      <li><a href="auctions.php">Auctions</a></li>
+      <li><a href="selecttime.php">Time-Travel</a></li>
+      <li><a href="about.html">About</a></li>
+      <?php
+        session_start();
+        if(empty($_SESSION['login']))
+          $_SESSION['login'] = null;
+        if ($_SESSION['login'] == null) {
+         echo "<li><a href='login.php'>Log In</a></li>";
+        }
+        else{
+          echo "<li><a href='logout.php'>Log Out</a></li>";
+        }
+      ?>
+    </ul>
+  </div>
+</div>
+<?php
+  if($_SESSION['login'] != null){
+    include('./sqlitedb.php');
+     $user = $_SESSION['username'];
+      $rating = $_SESSION['rating'];
+      echo "<h3 class='text-center'>Welcome Back: ".$user." - Rating: ".$rating."</h3>
+      <h4 class='text-center'>Current Time</h4>";
+      try{
+        $db->beginTransaction();
+        $query = "select currentTime from Time";
+        $result = $db->query($query);
+        $row = $result->fetch();
+        $db->commit();
+        echo "<h4 class='text-center'>".$row['currentTime']."</h4>";
+      }catch(PDOException $e){
+        $db->rollback();
+        echo "SQLite connection failed: " . $e->getMessage();
+        exit();
+      }
+
+//      $db = null;
+    }
+    else
+      echo "<p></p>";
+?>
+</body>
+</html>
